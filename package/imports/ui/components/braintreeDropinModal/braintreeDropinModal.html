@@ -1,0 +1,41 @@
+<template name="buyCreditsButton">
+  {{#if ready}}
+    {{#DynaViewLauncher dvTemplate="braintreeDropinModal" dvData=instance.data}}
+      <a {{buyButtonAttr}}>{{translation}}</a>
+    {{/DynaViewLauncher}}
+  {{else}}
+    {{>spinner}}
+  {{/if}}
+</template>
+
+<template name="braintreeDropinModal">
+	{{#DynaViewMaterialModal id="buyCreditsModal" quoteId=quoteId}}
+		<div class="modal-content">
+      <h4>Buy Credits</h4>
+
+      {{#if (not isProduction)}}
+        <div class="row">
+          <div class="col s12">
+            <blockquote>On non production environments, payments are processed using
+              a sandbox environment. Please do not use real payment information
+              here. To pay using paypal, use email test@expertbox.com with password
+              testtest. To pay using credit card, use number 5555555555554444
+              expiring 06/20.</blockquote>
+          </div>
+        </div>
+      {{/if}}
+
+			<form class="braintreeDropinForm">
+        {{#if ready}}
+          <div id="braintree-dropin-container"></div>
+          <div class="modal-footer">
+            <a {{payButtonAttr}}>{{translate "button-submit-payment"}}</a>
+            <a href="#!" class="waves-effect waves-green btn-flat js-cancelPaymentButton">{{translate "button-cancel"}}</a>
+          </div>
+        {{else}}
+          {{>spinner}}
+        {{/if}}
+      </form>
+		</div>
+  {{/DynaViewMaterialModal}}
+</template>

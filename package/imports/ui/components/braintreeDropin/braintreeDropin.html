@@ -1,0 +1,20 @@
+<template name="braintreeDropin">
+
+  {{#if (not isProduction)}}
+    <div class="row">
+      <div class="col s12">
+        <blockquote>On non production environments, payments are processed using
+          a sandbox environment. Please do not use real payment information
+          here. To pay using paypal, use email test@expertbox.com with password
+          testtest. To pay using credit card, use number 5555555555554444
+          expiring 06/20.</blockquote>
+      </div>
+    </div>
+  {{/if}}
+
+  <form class="braintreeDropinForm">
+    <div id="braintree-dropin-container"></div>
+    <button {{payButtonAttr}}>Pay</button>
+  </form>
+
+</template>
