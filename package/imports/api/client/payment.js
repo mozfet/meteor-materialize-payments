@@ -1,5 +1,5 @@
 // imports
-// import {check} from 'meteor/check'
+import { check } from 'meteor/check'
 
 /**
  * Polymorphic function to create a payment.
@@ -7,8 +7,8 @@
  * @returns {}
  **/
 const create = (args, callback) => {
-  // check(args, Object)
-  // check(callback, Function)
+  check(args, Object)
+  check(callback, Function)
 
   // return call method to create payment server side
   return Meteor.call('payments.create', args, callback)
