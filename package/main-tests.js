@@ -2,7 +2,7 @@
 import { Tinytest } from "meteor/tinytest";
 
 // Import and rename a variable exported by meteor-materialize-braintree.js.
-import { name as packageName } from "meteor/meteor-materialize-payments";
+import { name as packageName } from "meteor/mozfet:materialize-payments";
 
 // Write your tests here!
 // Here is an example.

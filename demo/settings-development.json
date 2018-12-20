@@ -1,0 +1,8 @@
+{
+  "braintree": {
+    "environment": "Braintree.Environment.Sandbox",
+    "merchantId": "fjg36b9gh8kvwkkv",
+    "publicKey": "ytw8v8w7gb3pf5qv",
+    "privateKey": "706030b8da1d55f25627ccb1e690643c"
+  }
+}

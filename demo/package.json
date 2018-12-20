@@ -1,8 +1,9 @@
 {
   "name": "demo",
-  "private": true,
+  "private": false,
+  "git": "https://github.com/mozfet/meteor-materialize-payments.git",
   "scripts": {
-    "start": "meteor run",
+    "start": "meteor --settings settings-development.json",
     "test": "meteor test --once --driver-package meteortesting:mocha"
   },
   "dependencies": {

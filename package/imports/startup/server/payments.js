@@ -1,6 +1,5 @@
-import { check, Match } from 'meteor/check';
-
-import Access from '/imports/api/access';
+import { check } from 'meteor/check'
+import Access from 'meteor/mozfet:access'
 
 // before payment insert
 Payments.before.insert(function (userId, doc) {

@@ -25,3 +25,4 @@ johanbrook:publication-collector  # Test a Meteor publication by collecting its 
 
 fourseven:scss@4.9.0
 zodiase:material-design-icons-fonts
+mozfet:materialize-payments

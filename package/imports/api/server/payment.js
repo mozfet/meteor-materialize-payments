@@ -1,6 +1,6 @@
 // imports
-import { check, Match } from 'meteor/check'
-import Access from '/imports/api/access'
+import {check} from 'meteor/check'
+import Access from 'meteor/mozfet:access'
 
 /**
  * Create a payment record in the database.
@@ -9,8 +9,8 @@ import Access from '/imports/api/access'
  * @returns {String} paymentId if no callback is supplied
  * @throws {Meteor.Error} in case of error without callback
  **/
-const createPayment = (args) => {
-  check(args, Object)
+const create = (args) => {
+  // check(args, Object)
 
   // insert payment
   const paymentId = Payments.insert(args)
@@ -40,9 +40,9 @@ const createPayment = (args) => {
  * @param {paymentId}  -
  * @returns {}
  **/
-const cancelPayment = (paymentId) => {
+const cancel = (paymentId) => {
   if (Meteor.isServer) {
-    check(paymentId, String)
+    // check(paymentId, String)
     Payments.update(paymentId, {$set: {state: 'CANCELLED'}})
     Log.log(['information', 'payments'], `Cancelled payment ${paymentId}.`)
   }
@@ -57,7 +57,7 @@ const cancelPayment = (paymentId) => {
  * @param {}  -
  * @returns {}
  **/
-const resetUserPaymentData = () => {
+const reset = () => {
 
   if (Access.isAdmin()) {
     Log.log(['information', 'payments'], 'Reset Payments.')
@@ -67,7 +67,7 @@ const resetUserPaymentData = () => {
 
 //export api
 export default {
-  create: createPayment,
-  cancel: cancelPayment,
-  reset: resetUserPaymentData
+  create,
+  cancel,
+  reset
 }

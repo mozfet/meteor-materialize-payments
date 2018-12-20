@@ -1,9 +1,12 @@
 // imports
-import PaymentsApi from 'imports/api/server'
+import Payment from '/imports/api/server/payments'
+import Braintree from '/imports/api/server/braintree'
 
 // methods
 Meteor.methods({
-  'payments.create': PaymentsApi.create,
-  'payments.cancel': PaymentsApi.cancel,
-  'payments.reset': PaymentsApi.reset
+  'payments.create': Payment.create,
+  'payments.cancel': Payment.cancel,
+  'payments.reset': Payment.reset,
+  'braintree.generateClientToken': Braintree.generateClientToken,
+  'braintree.payment': Braintree.payment
 })
