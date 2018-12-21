@@ -1,6 +1,31 @@
 {
   "lockfileVersion": 1,
   "dependencies": {
+    "@braintree/asset-loader": {
+      "version": "0.2.0",
+      "resolved": "https://registry.npmjs.org/@braintree/asset-loader/-/asset-loader-0.2.0.tgz",
+      "integrity": "sha512-tz/0a2nZvoLpUlGWLEJqqT4ITLFvM7WUWVvC8rgM33CiOmJLFUdYClpnoIvR0bXA2i1uxC/i7D67ghEhrg8BuA=="
+    },
+    "@braintree/browser-detection": {
+      "version": "1.7.0",
+      "resolved": "https://registry.npmjs.org/@braintree/browser-detection/-/browser-detection-1.7.0.tgz",
+      "integrity": "sha1-iVumS3AMPzbKtcVFkcr3GkEXHdg="
+    },
+    "@braintree/class-list": {
+      "version": "0.1.0",
+      "resolved": "https://registry.npmjs.org/@braintree/class-list/-/class-list-0.1.0.tgz",
+      "integrity": "sha512-AmXPsYhiNJKcxuwkgQjwyyTwFCeRlyFTeUJ9ecV/jLxS8ZH8fCAB4enYgArMRyvCekZZkqLK54kOJ6+OJBzJwA=="
+    },
+    "@braintree/iframer": {
+      "version": "1.0.3",
+      "resolved": "https://registry.npmjs.org/@braintree/iframer/-/iframer-1.0.3.tgz",
+      "integrity": "sha1-Id0f1M69QVSuqx76TVsNX0OENk4="
+    },
+    "@braintree/sanitize-url": {
+      "version": "2.1.0",
+      "resolved": "https://registry.npmjs.org/@braintree/sanitize-url/-/sanitize-url-2.1.0.tgz",
+      "integrity": "sha1-VJqdH5I8m8eVOlhdPpqpQpvo/ig="
+    },
     "@braintree/wrap-promise": {
       "version": "1.1.1",
       "resolved": "https://registry.npmjs.org/@braintree/wrap-promise/-/wrap-promise-1.1.1.tgz",
@@ -11,10 +36,30 @@
       "resolved": "https://registry.npmjs.org/braintree/-/braintree-2.13.1.tgz",
       "integrity": "sha512-rN6GEmy88SvvGuqy8BiBeDgbhT68etoTc4ye7cgpFj331u+pB4/GARMc2+DrcUfUQqa0TMJ/AX7Hcq1Il9VqIg=="
     },
+    "braintree-web": {
+      "version": "3.39.0",
+      "resolved": "https://registry.npmjs.org/braintree-web/-/braintree-web-3.39.0.tgz",
+      "integrity": "sha512-3j5eTQf9WrGaooAEK2OhBnTnvdnZT+gigooMdAUD6Ll1NWRlRmS7OC5G1kkWEr+KXWgE63IqyDy4sLtP5GsYaQ=="
+    },
+    "braintree-web-drop-in": {
+      "version": "1.14.1",
+      "resolved": "https://registry.npmjs.org/braintree-web-drop-in/-/braintree-web-drop-in-1.14.1.tgz",
+      "integrity": "sha512-VxBexaLRHpf/nONtqz+SXTx4hpzsB6G415LYYh4hO+jLquQq0uIq3+CvjconyprE9Yzptxhu46HLaXuDlDXWWg=="
+    },
+    "card-validator": {
+      "version": "6.0.0",
+      "resolved": "https://registry.npmjs.org/card-validator/-/card-validator-6.0.0.tgz",
+      "integrity": "sha512-M0f9AR//drteDaoXXv/TnvPSwYhIZp86CBLwNZ1T89mNkFMxcgKRJnSYJvQ+MSRJjIaVNRapPHdi4NVhxfB67Q=="
+    },
     "core-util-is": {
       "version": "1.0.2",
       "resolved": "https://registry.npmjs.org/core-util-is/-/core-util-is-1.0.2.tgz",
       "integrity": "sha1-tf1UIgqivFq1eqtxQMlAdUUDwac="
+    },
+    "credit-card-type": {
+      "version": "8.0.0",
+      "resolved": "https://registry.npmjs.org/credit-card-type/-/credit-card-type-8.0.0.tgz",
+      "integrity": "sha512-q3k5fbLJJIkPTBLr03Wo2Ui8cF5vHE8eTT/3K7BUW1ROoyns2vHoglWrzjmU/8JKA0X7JFlYlUVuDRwn7l2ldw=="
     },
     "dateformat": {
       "version": "1.0.1-1.2.3",
@@ -31,10 +76,30 @@
       "resolved": "https://registry.npmjs.org/depd/-/depd-1.1.2.tgz",
       "integrity": "sha1-m81S4UwJd2PnSbJ0xDRu0uVgtak="
     },
+    "framebus": {
+      "version": "3.0.1",
+      "resolved": "https://registry.npmjs.org/framebus/-/framebus-3.0.1.tgz",
+      "integrity": "sha1-26vDsI45vzPSSOmvdUvY/7Bc/M4="
+    },
+    "inject-stylesheet": {
+      "version": "1.0.0",
+      "resolved": "https://registry.npmjs.org/inject-stylesheet/-/inject-stylesheet-1.0.0.tgz",
+      "integrity": "sha1-9nMEdFjuWPEJ/uTPtmsJ82LMwmE="
+    },
+    "promise-polyfill": {
+      "version": "8.1.0",
+      "resolved": "https://registry.npmjs.org/promise-polyfill/-/promise-polyfill-8.1.0.tgz",
+      "integrity": "sha512-OzSf6gcCUQ01byV4BgwyUCswlaQQ6gzXc23aLQWhicvfX9kfsUiUhgt3CCQej8jDnl8/PhGF31JdHX2/MzF3WA=="
+    },
     "readable-stream": {
       "version": "1.1.10",
       "resolved": "http://registry.npmjs.org/readable-stream/-/readable-stream-1.1.10.tgz",
       "integrity": "sha1-1NwuUxnpyQ0eccaTkO9izZCCf2U="
+    },
+    "restricted-input": {
+      "version": "1.2.7",
+      "resolved": "https://registry.npmjs.org/restricted-input/-/restricted-input-1.2.7.tgz",
+      "integrity": "sha1-4SmPX9jEMMwtjmuxF1UkAjIFyzQ="
     },
     "sax": {
       "version": "1.2.4",

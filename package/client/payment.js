@@ -1,5 +1,6 @@
 // imports
 import { check } from 'meteor/check'
+import { Braintree } from './braintree'
 
 // on startup
 Meteor.startup(() => {

@@ -1,13 +1,11 @@
 // imports
-import {Template} from 'meteor/templating'
+import { Template } from 'meteor/templating'
 import { ReactiveVar } from 'meteor/reactive-var'
-import PaymentsApi from '../../../../../client/api'
-import BraintreeApi from '../../../api'
+import { Payment } from '../payments'
+import { Braintree } from '../braintree'
 import BraintreeDropin from 'braintree-web-drop-in'
-import Braintree from 'braintree-web'
-import Locale from '../../../../../../locale'
-import Toast from '/imports/ui/components/toast'
-import '../../../../../../../ui/components/DynaViewMaterialModal'
+import { Toast } from 'meteor/mozfet:materialize-toast'
+// import '../../../../../../../ui/components/DynaViewMaterialModal'
 import './braintreeDropinModal.html'
 
 // define templates
@@ -26,27 +24,41 @@ Template.braintreeDropinModal.onCreated(() => {
   instance.token = new ReactiveVar()
   instance.isProcessing = new ReactiveVar(false)
 
-  // create a payment
-  const args = {
-    type: 'BRAINTREE',
-    amount: instance.data.quote.amount,
-    currency: instance.data.quote.currency,
-    credits: instance.data.quote.credits,
-    quote: instance.quote
-  }
-  const callback = (error, result) => {
-    if(error) {
-      const msg = 'error creating payment id'
-      Log.log(['warning', 'braintree', 'dropin'], msg, [])
-      Materialize.toast(msg)
+  // internationalisation support
+  instance.translate = (key) => {
+    const translations = instance.data.translations?instance.data.translations:
+        {
+          'toast-payment-cancelled': 'Payment Cancelled',
+          'toast-payment-success': 'Payment Ok',
+          'toast-payment-error-create': 'Payment Creation Error',
+          'toast-payment-error-method': 'Payment Method Error'
+        }
+    if (_.contains(translations, key)) {
+      return translations[key]
     }
     else {
-      Log.log(['information', 'braintree'], 'braintree dropin payment id', [result])
-      instance.paymentId.set(result)
+      return key
     }
   }
 
-  Meteor.call('payments.create', args, callback)
+  // create a payment
+  const args = {
+    type: 'BRAINTREE',
+    amount: instance.data.amount,
+    currency: instance.data.currency
+  }
+  const callback = (error, paymentId) => {
+    if (error) {
+      Log.log(['warning', 'payment', 'braintree', 'dropin'], error)
+      Toast.show(['payment'], instance.translate('toast-payment-error-create'))
+    }
+    else {
+      Log.log(['debug', 'payment', 'braintree'], 'braintree dropin payment id',
+          paymentId)
+      instance.paymentId.set(paymentId)
+    }
+  }
+  Payment.create(args, callback)
 })
 
 Template.braintreeDropinModal.onRendered(() => {
@@ -59,7 +71,7 @@ Template.braintreeDropinModal.onRendered(() => {
     const paymentId = instance.paymentId.get()
 
     // if payment id is defined
-    if(paymentId) {
+    if (paymentId) {
 
       // get payment
       const paymentCursor = Payments.find({_id: paymentId})
@@ -68,7 +80,7 @@ Template.braintreeDropinModal.onRendered(() => {
       instance.payment.set(payment)
 
       // if payment is in created state
-      if(payment && payment.state==='CREATED') {
+      if (payment && payment.state==='CREATED') {
         Log.log(['debug', 'braintree'], 'braintree dropin payment state CREATED', [])
 
         // get the client token from the server
@@ -79,7 +91,7 @@ Template.braintreeDropinModal.onRendered(() => {
       }
 
       // else if payment is in processing state
-      else if(payment && (payment.state === 'PROCESSING')) {
+      else if (payment && (payment.state === 'PROCESSING')) {
         Log.log(['debug', 'braintree'], 'braintree dropin payment state PROCESSING')
         Meteor.call('track', {tag: 'paymentProcessing', category: 'payment',
             action: 'processing'})
@@ -88,27 +100,27 @@ Template.braintreeDropinModal.onRendered(() => {
       }
 
       // else if payment is in error state
-      else if(payment && (payment.state === 'ERROR')) {
+      else if (payment && (payment.state === 'ERROR')) {
         Log.log(['debug', 'braintree'], 'braintree dropin payment state ERROR',
             payment.errorMessage)
         Meteor.call('track', {tag: 'paymentError', category: 'payment',
             action: 'error'})
         $('#buyCreditsModal').modal('close')
-        Materialize.toast(payment.errorMessage)
+        Toast.show(['braintree'], payment.errorMessage)
       }
 
       // else if payment is in rejected state
-      else if(payment && (payment.state === 'REJECTED')) {
+      else if (payment && (payment.state === 'REJECTED')) {
         Log.log(['debug', 'braintree'],
             'braintree dropin payment state REJECTED', payment.message)
         Meteor.call('track', {tag: 'paymentRejected', category: 'payment',
             action: 'rejected'})
         $('#buyCreditsModal').modal('close')
-        Materialize.toast(payment.message)
+        Toast.show(['braintree'], payment.message)
       }
 
       // else if payment is in approved state
-      else if(payment && (payment.state === 'SETTLED')) {
+      else if (payment && (payment.state === 'SETTLED')) {
         Log.log(['debug', 'braintree'],
             'braintree dropin payment state SETTLED')
 
@@ -124,9 +136,9 @@ Template.braintreeDropinModal.onRendered(() => {
       }
 
       // else if braintree client token exists
-      else if(payment && (payment.state === 'TOKENIZED')) {
+      else if (payment && (payment.state === 'TOKENIZED')) {
         Log.log(['debug', 'braintree'],
-          'braintree dropin payment state TOKENIZED');
+          'braintree dropin payment state TOKENIZED')
 
         // create dropin using token as authorization
         BraintreeDropin.create(
@@ -206,9 +218,9 @@ Template.braintreeDropinModal.helpers({
   payButtonAttr() {
 
     // pay button is disabled if no payment method is available
-    const instance = Template.instance();
+    const instance = Template.instance()
     const disabled = (!instance.paymentMethodRequestable.get()) ||
-        instance.isProcessing.get();
+        instance.isProcessing.get()
     const baseClass = 'btn waves-effect waves-green js-submitPaymentButton'
     return {
       'class': disabled?baseClass+' disabled':baseClass,
@@ -222,29 +234,28 @@ Template.braintreeDropinModal.events({
 
   // on click pay button
   'click .js-submitPaymentButton'(event) {
-    event.preventDefault();
-    const instance = Template.instance();
+    event.preventDefault()
+    const instance = Template.instance()
 
     // if payment is tokenized
-    if(instance.payment.get().state === 'TOKENIZED') {
+    if (instance.payment.get().state === 'TOKENIZED') {
 
       // if payment method can be requested
-      if(instance.dropin.isPaymentMethodRequestable()) {
+      if (instance.dropin.isPaymentMethodRequestable()) {
         instance.dropin.requestPaymentMethod(function (error, payload) {
 
-          //if error
-          if(error) {
-            const msg = 'error obtaining payment method';
-            Log.log(['warning', 'braintree'], msg, [error, payload]);
-            Materialize.toast(msg);
+          // if error
+          if (error) {
+            Log.log(['warning', 'braintree'], error, payload)
+            Toast.show(['payment'], instance.translate('toast-payment-error-payment-method'))
           }
 
-          //else - no error
+          // else - no error
           else {
-            Log.log(['information', 'braintree'], 'braintree dropin payment method:', [payload]);
+            Log.log(['information', 'braintree'], 'braintree dropin payment method:', [payload])
 
             // perform braintree payment with nonce
-            BraintreeApi.payment({id: instance.paymentId.get(), nonce: payload.nonce});
+            Braintree.payment({id: instance.paymentId.get(), nonce: payload.nonce})
           }
         })
       }
@@ -262,62 +273,15 @@ Template.braintreeDropinModal.events({
     // cancel the payment
     Meteor.call('payments.cancel', instance.paymentId.get())
 
-    //show toast
-    Toast.show(['braintree'], Locale.translate('toast-payment-cancelled'))
+    // show toast
+    Toast.show(['braintree'], instance.translate('toast-payment-cancelled'))
   }
 })
 
 // cleanup
 Template.braintreeDropinModal.onDestroyed(() => {
-  const instance = Template.instance();
-  if(instance.dropin) {
-    instance.dropin.teardown();
+  const instance = Template.instance()
+  if (instance.dropin) {
+    instance.dropin.teardown()
   }
-});
-
-// on creation of buy creadit button
-Template.buyCreditsButton.onCreated(() => {
-  const instance = Template.instance();
-  instance.ready = new ReactiveVar(false);
-
-  // subscribe to quotes
-  instance.subscribe('quotes', () => {
-
-    // get a quote - then
-    Meteor.call('pricing.quote', instance.data.credits, instance.data.currency, (error, quoteId) => {
-
-      //handle error
-      if(error) {
-        Log.log(['braintree', 'error', 'buyButton'], 'error getting pricing quote', error);
-        Toast.show(['braintree'], Locale.translate('toast-connection-error'))
-      }
-      else {
-        instance.data.quote = Quotes.findOne(quoteId);
-        instance.ready.set(true);
-      }
-    })
-  })
 })
-
-Template.buyCreditsButton.helpers({
-  buyButtonAttr() {
-    const instance = Template.instance();
-    return {
-      'href': '#!',
-      'class': 'waves-effect waves-green btn js-dynaview-launcher',
-      'style': instance.data.style?instance.data.style:''
-    };
-  },
-  translation() {
-    const instance = Template.instance();
-    return Locale.translate('button-buy-credits', {
-      credits: instance.data.quote.credits,
-      amount: instance.data.quote.amount,
-      currency: instance.data.quote.displayCurrency
-    });
-  },
-  ready() {
-    const instance = Template.instance();
-    return instance.ready.get();
-  }
-});

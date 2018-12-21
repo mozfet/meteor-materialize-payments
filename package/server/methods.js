@@ -1,6 +1,6 @@
 // imports
-import Payment from './payment'
-import Braintree from './braintree'
+import { Payment } from './payment'
+import { Braintree } from './braintree'
 
 // methods
 Meteor.methods({

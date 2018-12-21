@@ -1,0 +1,17 @@
+<!-- use:
+  {{#DynaViewMaterialModal id="modalId"}}
+    <div class="modal-content">
+      <h4>Modal Title</h4>
+      Some Text
+    </div>
+    <div class="modal-footer">
+      <a href="#!" class="modal-action modal-close btn-flat">Ok</a>
+    </div>
+  {{/DynaViewMaterialModal}}
+ -->
+
+<template name="DynaViewMaterialModal">
+  <div id={{id}} class="modal">
+    {{> UI.contentBlock}}
+  </div>
+</template>

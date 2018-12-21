@@ -1,3 +1,2 @@
-/*jshint esversion: 6 */
-
-import './braintreeDropinModal';
+// imports
+import './braintreeDropinModal'

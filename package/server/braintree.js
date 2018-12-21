@@ -1,4 +1,4 @@
-import Braintree from 'braintree'
+import BraintreeApi from 'braintree'
 // import CreditsApi from '../../credits/server/api'
 
 let environment, gateway
@@ -12,10 +12,10 @@ Meteor.startup(() => {
   // determine environment from settings
   environment = Meteor.settings.braintree.environment ===
       "braintree.Environment.Production"?
-      Braintree.Environment.Production:Braintree.Environment.Sandbox
+      BraintreeApi.Environment.Production:BraintreeApi.Environment.Sandbox
 
   // connect to braintree gateway
-  gateway = Braintree.connect({
+  gateway = BraintreeApi.connect({
     environment: environment,
     merchantId: Meteor.settings.braintree.merchantId,
     publicKey: Meteor.settings.braintree.publicKey,
@@ -196,7 +196,7 @@ const braintreePayment = (args, callback) => {
 }
 
 // update api
-export default {
+export const Braintree = {
   gateway: gateway,
   generateClientToken: generateClientToken,
   payment: braintreePayment

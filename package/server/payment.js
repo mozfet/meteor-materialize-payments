@@ -3,6 +3,7 @@ import { check } from 'meteor/check'
 import { Mongo } from 'meteor/mongo'
 import { Access } from 'meteor/mozfet:access'
 import { Log } from 'meteor/mozfet:meteor-logs'
+import { Braintree } from './braintree'
 
 Log.log(['debug', 'payments'], 'Add payments collection hooks and publications.')
 
@@ -143,7 +144,7 @@ const reset = () => {
 }
 
 // export api
-export default {
+export const Payment = {
   create,
   cancel,
   reset

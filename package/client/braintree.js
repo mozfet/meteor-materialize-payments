@@ -19,7 +19,7 @@ const payment = (args, callback) => {
 }
 
 // export default api
-export default {
+export const Braintree = {
   getClientToken: getClientToken,
   payment: payment
 }
