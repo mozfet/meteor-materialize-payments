@@ -1,12 +1,13 @@
 // imports
 import { Meteor } from 'meteor/meteor'
 import { Template } from 'meteor/templating'
-import './braintreeDropinModal'
+import '../braintreeDropinModal/braintreeDropinModal'
 import './buyButton.html'
 
 // on created
 Template.buyButton.onCreated(() => {
   const instance = Template.instance()
+  console.log('buyButton instance data', instance.data)
 })
 
 // on rendered
@@ -16,9 +17,13 @@ Template.buyButton.onRendered(() => {
 
 // helpers
 Template.buyButton.helpers({
-  helper() {
+  transaction() {
     const instance = Template.instance()
-    return 'help'
+    return {
+      amount: instance.data.amount,
+      currency: instance.data.currency,
+      meta: instance.data.meta
+    }
   }
 })
 

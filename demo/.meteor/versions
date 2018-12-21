@@ -63,7 +63,7 @@ mongo-decimal@0.1.0
 mongo-dev-server@1.1.0
 mongo-id@1.0.7
 mozfet:access@0.0.4
-mozfet:materialize-payments@0.0.5
+mozfet:materialize-payments@0.0.7
 mozfet:materialize-toast@0.0.3
 mozfet:meteor-logs@0.3.1
 npm-mongo@3.1.1
@@ -76,6 +76,7 @@ reactive-var@1.0.11
 reload@1.2.0
 retry@1.1.0
 routepolicy@1.1.0
+session@1.2.0
 shell-server@0.4.0
 socket-stream-client@0.2.2
 spacebars@1.0.15

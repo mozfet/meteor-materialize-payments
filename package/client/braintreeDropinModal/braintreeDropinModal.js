@@ -1,16 +1,17 @@
 // imports
 import { Template } from 'meteor/templating'
 import { ReactiveVar } from 'meteor/reactive-var'
-import { Payment } from '../payments'
+import { Payment } from '../payment'
 import { Braintree } from '../braintree'
 import BraintreeDropin from 'braintree-web-drop-in'
 import { Toast } from 'meteor/mozfet:materialize-toast'
-// import '../../../../../../../ui/components/DynaViewMaterialModal'
+import '../dynaViewMaterialModal/dynaViewMaterialModal'
 import './braintreeDropinModal.html'
 
 // define templates
 Template.braintreeDropinModal.onCreated(() => {
   const instance = Template.instance()
+  console.log('braintreeDropinModal instance data', instance.data)
 
   // subscribe to payments publication
   instance.subscribe('payments')
@@ -31,7 +32,9 @@ Template.braintreeDropinModal.onCreated(() => {
           'toast-payment-cancelled': 'Payment Cancelled',
           'toast-payment-success': 'Payment Ok',
           'toast-payment-error-create': 'Payment Creation Error',
-          'toast-payment-error-method': 'Payment Method Error'
+          'toast-payment-error-method': 'Payment Method Error',
+          'payment-modal-submit-button': 'Submit',
+          'payment-modal-cancel-button': 'Cancel'
         }
     if (_.contains(translations, key)) {
       return translations[key]
@@ -45,7 +48,8 @@ Template.braintreeDropinModal.onCreated(() => {
   const args = {
     type: 'BRAINTREE',
     amount: instance.data.amount,
-    currency: instance.data.currency
+    currency: instance.data.currency,
+    meta: instance.data.meta
   }
   const callback = (error, paymentId) => {
     if (error) {
@@ -214,6 +218,11 @@ Template.braintreeDropinModal.helpers({
     return false
   },
 
+  translate(key) {
+    const instance = Template.instance()
+    instance.translate(key)
+  },
+
   // pay button attributes
   payButtonAttr() {
 
@@ -247,15 +256,20 @@ Template.braintreeDropinModal.events({
           // if error
           if (error) {
             Log.log(['warning', 'braintree'], error, payload)
-            Toast.show(['payment'], instance.translate('toast-payment-error-payment-method'))
+            Toast.show(['payment'],
+                instance.translate('toast-payment-error-payment-method'))
           }
 
           // else - no error
           else {
-            Log.log(['information', 'braintree'], 'braintree dropin payment method:', [payload])
+            Log.log(['information', 'braintree'],
+                'braintree dropin payment method:', [payload])
 
             // perform braintree payment with nonce
-            Braintree.payment({id: instance.paymentId.get(), nonce: payload.nonce})
+            Braintree.payment({
+              id: instance.paymentId.get(),
+              nonce: payload.nonce
+            })
           }
         })
       }

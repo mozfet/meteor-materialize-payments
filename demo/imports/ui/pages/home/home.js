@@ -1,2 +1,14 @@
 import './home.html'
-import '/imports/ui/components/paymentButton'
+
+Template.App_home.helpers({
+  transaction() {
+    const instance = Template.instance()
+    return {
+      amount: 5,
+      currency: 'EUR',
+      meta: {
+        product: 'PREMIUM_ACCOUNT'
+      }
+    }
+  }
+})

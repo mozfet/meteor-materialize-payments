@@ -1,5 +1,4 @@
 import BraintreeApi from 'braintree'
-// import CreditsApi from '../../credits/server/api'
 
 let environment, gateway
 Meteor.startup(() => {
@@ -59,7 +58,7 @@ const generateClientToken = (args, callback) => {
         else {
 
           // if response is success
-          if(response.success) {
+          if (response.success) {
             Log.log(['information', 'braintree'], 'generated braintree client token', [response.clientToken])
 
             // update payment with client token
@@ -103,8 +102,6 @@ const braintreePayment = (args, callback) => {
     Log.log(['error', 'braintree'],'braintree needs a payment to process:', [payment])
   }
 
-  // TODO if currency is not eur cancel payment with error currency not supported
-
   // mark payment as processiong and set the nonce
   Payments.update(payment._id, {$set: {state: 'PROCESSING', 'braintree.nonce': args.nonce}})
 
@@ -125,7 +122,7 @@ const braintreePayment = (args, callback) => {
     Meteor.bindEnvironment(
       function (error, result) {
 
-        //if error
+        // if error
         if (error) {
 
           // mark transaction as error in db
@@ -163,9 +160,6 @@ const braintreePayment = (args, callback) => {
             currency: payment.currency
           }
 
-          // create credits
-          // CreditsApi.create(payment._id, Meteor.userId(), payment.credits, payment.creditValidityDays, valuePerCredit)
-
           // callback
           if(callback) {
             callback(undefined, result)
@@ -180,7 +174,7 @@ const braintreePayment = (args, callback) => {
           Log.log(['warning', 'braintree'], 'payment rejected by gateway', [result.message])
 
           //callback
-          if(callback) {
+          if (callback) {
             callback('payment rejected by gateway', result)
           }
         }

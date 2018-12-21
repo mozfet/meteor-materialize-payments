@@ -1,5 +1,5 @@
 <template name="buyButton">
-  {{#DynaViewLauncher dvTemplate="braintreeDropinModal" dvData=instance.data}}
-    <a class="btn" {{buyButtonAttr}}>Buy</a>
+  {{#DynaViewLauncher dvTemplate="braintreeDropinModal" dvData=transaction}}
+    <a class="btn js-dynaview-launcher">Buy</a>
   {{/DynaViewLauncher}}
 </template>
