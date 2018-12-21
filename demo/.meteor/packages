@@ -23,6 +23,7 @@ kadira:blaze-layout           # Layout manager for blaze (works well with FlowRo
 meteortesting:mocha               # A package for writing and running your meteor app and package tests with mocha
 johanbrook:publication-collector  # Test a Meteor publication by collecting its output
 
-fourseven:scss@4.9.0
+fourseven:scss
 zodiase:material-design-icons-fonts
 mozfet:materialize-payments
+mozfet:meteor-logs

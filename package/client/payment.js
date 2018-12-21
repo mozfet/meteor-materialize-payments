@@ -1,6 +1,13 @@
 // imports
 import { check } from 'meteor/check'
 
+// on startup
+Meteor.startup(() => {
+
+  // define database collection for payments
+  const Payments = new Meteor.Collection('payments')
+})
+
 /**
  * Polymorphic function to create a payment.
  * @param {}  -
@@ -14,4 +21,7 @@ const create = (args, callback) => {
   return Meteor.call('payments.create', args, callback)
 }
 
-export default {create}
+// export
+export const Payment = {
+  create
+}
