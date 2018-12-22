@@ -31,56 +31,64 @@ const generateClientToken = (args, callback) => {
   const clientTokenArgs = {}
 
   // get user
-  const user = Meteor.users.findOne(Meteor.userId())
-  Log.log(['debug', 'braintree'], 'braintree.server.api.generateClientToken.user', user)
+  const userId = Meteor.userId()
+  if (!userId) {
+    Log.log(['error', 'payment', 'braintree'],
+        'Must be logged in to generate client token.')
+  }
+  const user = Meteor.users.findOne()
+  Log.log(['debug', 'braintree'],
+      'braintree.server.api.generateClientToken.user', user)
 
   // set braintree customer id of repeat customer
-  if(user.payments && user.payments.braintree && user.payments.braintree.customerId) {
+  if(user.payments && user.payments.braintree &&
+        user.payments.braintree.customerId) {
     clientTokenArgs.customerId = user.payments.braintree.customerId
   }
   Log.log(['debug', 'braintree'], 'braintree.server.api.generateClientToken.clientTokenArg', clientTokenArgs)
 
+  // get payments collection
+  const payments = Mongo.Collection.get('payments')
+
   // async generate token
   gateway.clientToken.generate(
     clientTokenArgs,
-    Meteor.bindEnvironment(
-      function (error, response) {
+    Meteor.bindEnvironment((error, response) => {
 
-        // if error
-        if(error) {
+      // if error
+      if(error) {
 
-          // update payment with error
-          Payments.update(args.id, {$set: {state: 'ERROR', errorType: 'CONNECTION', errorMessage: 'connection error'}})
-          Log.log(['warning', 'braintree'], 'could not generate braintree client token', [error])
+        // update payment with error
+        payments.update(args.id, {$set: {state: 'ERROR', errorType: 'CONNECTION', errorMessage: 'connection error'}})
+        Log.log(['warning', 'braintree'], 'could not generate braintree client token', [error])
+      }
+
+      // else - success
+      else {
+
+        // if response is success
+        if (response.success) {
+          Log.log(['information', 'braintree'], 'generated braintree client token', [response.clientToken])
+
+          // update payment with client token
+          payments.update(args.id, {$set: {
+            state: 'TOKENIZED',
+            'braintree.clientToken': response.clientToken
+          }})
         }
-
-        // else - success
         else {
 
-          // if response is success
-          if (response.success) {
-            Log.log(['information', 'braintree'], 'generated braintree client token', [response.clientToken])
-
-            // update payment with client token
-            Payments.update(args.id, {$set: {
-              state: 'TOKENIZED',
-              'braintree.clientToken': response.clientToken
-            }})
-          }
-          else {
-
-            // update payment with error
-            Payments.update(args.id, {$set: {state: 'ERROR', errorType: 'PROCESSOR', errorMessage: response.message}})
-            Log.log(['warning', 'braintree'], [response.message])
-          }
-        }
-
-        //callback
-        if(callback) {
-          callback(error, response)
+          // update payment with error
+          payments.update(args.id, {$set: {state: 'ERROR', errorType: 'PROCESSOR', errorMessage: response.message}})
+          Log.log(['warning', 'braintree'], [response.message])
         }
       }
-    )
+
+      //callback
+      if(callback) {
+        callback(error, response)
+      }
+    })
   )
 
   //async function returns undefined
@@ -94,16 +102,16 @@ const generateClientToken = (args, callback) => {
 const braintreePayment = (args, callback) => {
 
   // get the collection
-  const Payments = Mongo.Collection.get('payments')
+  const payments = Mongo.Collection.get('payments')
 
   // get the payment
-  const payment = Payments.findOne(args.id)
+  const payment = payments.findOne(args.id)
   if(_.isUndefined(payment)) {
     Log.log(['error', 'braintree'],'braintree needs a payment to process:', [payment])
   }
 
   // mark payment as processiong and set the nonce
-  Payments.update(payment._id, {$set: {state: 'PROCESSING', 'braintree.nonce': args.nonce}})
+  payments.update(payment._id, {$set: {state: 'PROCESSING', 'braintree.nonce': args.nonce}})
 
   // async create sale using braintree gateway
   gateway.transaction.sale(
@@ -120,48 +128,41 @@ const braintreePayment = (args, callback) => {
 
     // callback function
     Meteor.bindEnvironment(
-      function (error, result) {
+      (error, result) => {
 
         // if error
         if (error) {
 
           // mark transaction as error in db
-          Payments.update(payment._id, {$set: {state: 'ERROR', errorType: 'CONNECTION', errorMessage: 'connection error'}})
+          payments.update(payment._id, {$set: {state: 'ERROR',
+              errorType: 'CONNECTION', errorMessage: 'connection error'}})
           Log.log(['warning', 'braintree'], [error])
 
           // callback
-          if(callback) {
+          if (callback) {
             callback(error, result)
           }
         }
 
         // else if result is success
         else if (result.success) {
-          Log.log(['information', 'debug', 'braintree'], 'braintree.payment.callback.result.transaction.customer', result.transaction.customer)
+          Log.log(['information', 'debug', 'braintree'],
+              'braintree.payment.callback.result.transaction.customer',
+              result.transaction.customer)
 
           // mark transaction as approved and store transaction id
-          Payments.update(payment._id, {$set: {state: 'APPROVED', 'braintree.transactionId': result.transaction.id}})
-          Log.log(['debug', 'braintree'], 'payment approved', Payments.findOne(payment._id))
+          payments.update(payment._id, {$set: {state: 'APPROVED',
+              'braintree.transactionId': result.transaction.id}})
+          Log.log(['debug', 'braintree'], 'payment approved',
+              payments.findOne(payment._id))
 
           // store customer id for user
-          Meteor.users.update({_id: Meteor.userId()}, {$set: {'payments.braintree.customerId': result.transaction.customer.id}})
-
-          // prepare value per credit
-          const creditValueIncludingTax = payment.amount/payment.credits
-          const creditValueExcludingTax = creditValueIncludingTax/(1+Meteor.settings.public.vatRate)
-          const creditTax = creditValueIncludingTax-creditValueExcludingTax
-          const creditCommission = creditValueExcludingTax*Meteor.settings.public.commissionRate
-          const creditValueAfterTaxExcludingCommission = creditValueExcludingTax - creditCommission
-          const valuePerCredit = {
-            // sale: creditValueIncludingTax,
-            amount: creditValueAfterTaxExcludingCommission,
-            tax: creditTax,
-            commission: creditCommission,
-            currency: payment.currency
-          }
+          Meteor.users.update({_id: Meteor.userId()},
+              {$set: {'payments.braintree.customerId':
+              result.transaction.customer.id}})
 
           // callback
-          if(callback) {
+          if (callback) {
             callback(undefined, result)
           }
         }
@@ -170,8 +171,10 @@ const braintreePayment = (args, callback) => {
         else {
 
           // mark transaction as error in db
-          Payments.update(payment._id, {$set: {state: 'REJECTED', message: result.message}})
-          Log.log(['warning', 'braintree'], 'payment rejected by gateway', [result.message])
+          payments.update(payment._id, {$set: {state: 'REJECTED',
+              message: result.message}})
+          Log.log(['warning', 'braintree'], 'payment rejected by gateway',
+              [result.message])
 
           //callback
           if (callback) {

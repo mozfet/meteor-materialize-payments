@@ -1,6 +1,6 @@
 <template name="braintreeDropin">
 
-  {{#if (not isProduction)}}
+  {{#unless isProduction}}
     <div class="row">
       <div class="col s12">
         <blockquote>On non production environments, payments are processed using
@@ -10,7 +10,7 @@
           expiring 06/20.</blockquote>
       </div>
     </div>
-  {{/if}}
+  {{/unless}}
 
   <form class="braintreeDropinForm">
     <div id="braintree-dropin-container"></div>

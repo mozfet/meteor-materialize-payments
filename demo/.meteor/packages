@@ -28,3 +28,5 @@ zodiase:material-design-icons-fonts
 
 mozfet:materialize-payments
 mozfet:meteor-logs
+accounts-password
+accounts-ui

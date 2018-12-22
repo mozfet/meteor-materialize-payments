@@ -1,4 +1,5 @@
 // imports
+import { Mongo } from 'meteor/mongo'
 import { Template } from 'meteor/templating'
 import { ReactiveVar } from 'meteor/reactive-var'
 import { Payment } from '../payment'
@@ -78,7 +79,8 @@ Template.braintreeDropinModal.onRendered(() => {
     if (paymentId) {
 
       // get payment
-      const paymentCursor = Payments.find({_id: paymentId})
+      const payments = Mongo.Collection.get('payments')
+      const paymentCursor = payments.find({_id: paymentId})
       const payment = _.first(paymentCursor.fetch())
       Log.log(['debug', 'braintree'], 'braintree dropin payment', payment)
       instance.payment.set(payment)
@@ -97,8 +99,6 @@ Template.braintreeDropinModal.onRendered(() => {
       // else if payment is in processing state
       else if (payment && (payment.state === 'PROCESSING')) {
         Log.log(['debug', 'braintree'], 'braintree dropin payment state PROCESSING')
-        Meteor.call('track', {tag: 'paymentProcessing', category: 'payment',
-            action: 'processing'})
         instance.isProcessing.set(true)
         Toast.show(['braintree'], 'payment processing')
       }
@@ -107,8 +107,6 @@ Template.braintreeDropinModal.onRendered(() => {
       else if (payment && (payment.state === 'ERROR')) {
         Log.log(['debug', 'braintree'], 'braintree dropin payment state ERROR',
             payment.errorMessage)
-        Meteor.call('track', {tag: 'paymentError', category: 'payment',
-            action: 'error'})
         $('#buyCreditsModal').modal('close')
         Toast.show(['braintree'], payment.errorMessage)
       }
@@ -117,8 +115,6 @@ Template.braintreeDropinModal.onRendered(() => {
       else if (payment && (payment.state === 'REJECTED')) {
         Log.log(['debug', 'braintree'],
             'braintree dropin payment state REJECTED', payment.message)
-        Meteor.call('track', {tag: 'paymentRejected', category: 'payment',
-            action: 'rejected'})
         $('#buyCreditsModal').modal('close')
         Toast.show(['braintree'], payment.message)
       }
@@ -130,10 +126,6 @@ Template.braintreeDropinModal.onRendered(() => {
 
         // inform user of success
         Toast.show(['braintree'],'payment approved')
-
-        // create tracking event
-        Meteor.call('track', {tag: 'paymentSettled', category: 'payment',
-            action: 'settled', value: payment.credits})
 
         // close modal
         $('#buyCreditsModal').modal('close')
@@ -156,7 +148,7 @@ Template.braintreeDropinModal.onRendered(() => {
           function (error, dropinInstance) {
 
             // if error
-            if(error) {
+            if (error) {
 
               // log and inform user
               const msg = 'error creating braintree dropin'

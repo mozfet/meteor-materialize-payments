@@ -1,18 +1,21 @@
 // imports
 import { check } from 'meteor/check'
+import { Meteor } from 'meteor/meteor'
 import { Mongo } from 'meteor/mongo'
 import { Access } from 'meteor/mozfet:access'
 import { Log } from 'meteor/mozfet:meteor-logs'
 import { Braintree } from './braintree'
 
-Log.log(['debug', 'payments'], 'Add payments collection hooks and publications.')
-
 // define database collection for payments
 const payments = new Mongo.Collection('payments')
-console.log(`Payments collection before`, payments.before)
 
 // before payment insert
 payments.before.insert(function (userId, doc) {
+
+  // if user is not logged in
+  if (!userId) {
+    Log.log(['error', 'payments'], 'User must be signed in to pay.')
+  }
 
   // set owner id
   doc.ownerId = userId
@@ -39,10 +42,10 @@ payments.allow(Access.adminCreateUpdateRemove)
 
 // publications
 Meteor.publish('payments', function () {
-  const userId = Meteor.userId()
+  const userId = this.userId
 
   // if user is admin
-  if(Access.isAdmin(userId)) {
+  if (Access.isAdmin(userId)) {
 
     // publish all payments
     return payments.find({})

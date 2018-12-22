@@ -1,6 +1,6 @@
 Package.describe({
   name: 'mozfet:materialize-payments',
-  version: '0.0.7',
+  version: '0.0.8',
   summary: 'MaterializeCSS Styled Payments for Braintree',
   git: 'https://github.com/mozfet/meteor-materialize-payments.git',
   documentation: 'README.md'
@@ -16,7 +16,12 @@ Package.onUse(function(api) {
   api.versionsFrom('1.8.0.1');
 
   // both
-  api.use(['ecmascript', 'underscore', 'mozfet:meteor-logs@0.3.1']);
+  api.use([
+    'ecmascript',
+    'underscore',
+    'mozfet:meteor-logs@0.3.3',
+    'dburles:mongo-collection-instances@0.3.5'
+  ]);
 
   // server
   api.use([
@@ -32,17 +37,19 @@ Package.onUse(function(api) {
 
   // client
   api.use([
-    'templating',
-    'ui',
     'session',
     'ejson',
-    'mozfet:materialize-toast@0.0.3'
+    'templating@1.3.2',
+    'ui@1.0.13',    
+    'mozfet:materialize-toast@0.0.4'
   ], 'client')
   api.addFiles([
     './client/dynaView/dynaView.html',
     './client/dynaView/dynaView.js',
     './client/dynaView/dynaViewLauncher.html',
     './client/dynaView/dynaViewLauncher.js',
+    './client/spinner/spinner.html',
+    './client/spinner/spinner.js',
     './client/braintreeDropinModal/braintreeDropinModal.html',
     './client/braintreeDropinModal/braintreeDropinModal.js',
     './client/buyButton/buyButton.html',

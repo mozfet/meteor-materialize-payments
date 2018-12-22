@@ -1,5 +1,9 @@
 <template name="buyButton">
-  {{#DynaViewLauncher dvTemplate="braintreeDropinModal" dvData=transaction}}
-    <a class="btn js-dynaview-launcher">Buy</a>
-  {{/DynaViewLauncher}}
+  {{#if currentUser}}
+    {{#DynaViewLauncher dvTemplate="braintreeDropinModal" dvData=transaction}}
+      <a class="btn js-dynaview-launcher">Buy</a>
+    {{/DynaViewLauncher}}
+  {{else}}
+    <a class="btn disabled">Buy</a>
+  {{/if}}
 </template>

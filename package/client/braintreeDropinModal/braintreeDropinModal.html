@@ -3,7 +3,7 @@
 		<div class="modal-content">
       <h4>Buy</h4>
 
-      {{#if (not isProduction)}}
+      {{#unless isProduction}}
         <div class="row">
           <div class="col s12">
             <blockquote>On non production environments, payments are processed using
@@ -13,7 +13,7 @@
               expiring 06/20.</blockquote>
           </div>
         </div>
-      {{/if}}
+      {{/unless}}
 
 			<form class="braintreeDropinForm">
         {{#if ready}}
@@ -24,7 +24,7 @@
               {{translate "payment-modal-cancel-button"}}</a>
           </div>
         {{else}}
-          {{>spinner}}
+          {{> spinner}}
         {{/if}}
       </form>
 		</div>
