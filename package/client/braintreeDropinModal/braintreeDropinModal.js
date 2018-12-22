@@ -9,6 +9,13 @@ import { Toast } from 'meteor/mozfet:materialize-toast'
 import '../dynaViewMaterialModal/dynaViewMaterialModal'
 import './braintreeDropinModal.html'
 
+// close modal
+function closeModal() {
+  const element = $('#paymentModal')
+  const modal = M.Modal.getInstance(element)
+  modal.close()
+}
+
 // define templates
 Template.braintreeDropinModal.onCreated(() => {
   const instance = Template.instance()
@@ -35,9 +42,13 @@ Template.braintreeDropinModal.onCreated(() => {
           'toast-payment-error-create': 'Payment Creation Error',
           'toast-payment-error-method': 'Payment Method Error',
           'payment-modal-submit-button': 'Submit',
-          'payment-modal-cancel-button': 'Cancel'
+          'payment-modal-cancel-button': 'Cancel',
+          'toast-payment-processing': 'Payment Processing',
+          'toast-payment-approved': 'Payment Approved',
+          'toast-payment-cancelled': 'Payment Cancelled',
+          'modal-title': 'Online Payment'
         }
-    if (_.contains(translations, key)) {
+    if (_.chain(translations).keys().contains(key)) {
       return translations[key]
     }
     else {
@@ -56,6 +67,7 @@ Template.braintreeDropinModal.onCreated(() => {
     if (error) {
       Log.log(['warning', 'payment', 'braintree', 'dropin'], error)
       Toast.show(['payment'], instance.translate('toast-payment-error-create'))
+      closeModal()
     }
     else {
       Log.log(['debug', 'payment', 'braintree'], 'braintree dropin payment id',
@@ -87,48 +99,52 @@ Template.braintreeDropinModal.onRendered(() => {
 
       // if payment is in created state
       if (payment && payment.state==='CREATED') {
-        Log.log(['debug', 'braintree'], 'braintree dropin payment state CREATED', [])
+        Log.log(['debug', 'braintree'],
+            'braintree dropin payment state CREATED', [])
 
         // get the client token from the server
         Meteor.call('braintree.generateClientToken',
             {id: payment._id}, (error, response) => {
-          Log.log(['debug', 'braintree'], 'braintree client token generated', [error, response])
+          Log.log(['debug', 'braintree'], 'braintree client token generated',
+              [error, response])
         })
       }
 
       // else if payment is in processing state
       else if (payment && (payment.state === 'PROCESSING')) {
-        Log.log(['debug', 'braintree'], 'braintree dropin payment state PROCESSING')
+        Log.log(['debug', 'braintree'],
+            'braintree dropin payment state PROCESSING')
         instance.isProcessing.set(true)
-        Toast.show(['braintree'], 'payment processing')
+        Toast.show(['braintree'],
+            instance.translate('toast-payment-processing'))
       }
 
       // else if payment is in error state
       else if (payment && (payment.state === 'ERROR')) {
         Log.log(['debug', 'braintree'], 'braintree dropin payment state ERROR',
             payment.errorMessage)
-        $('#buyCreditsModal').modal('close')
         Toast.show(['braintree'], payment.errorMessage)
+        closeModal()
       }
 
       // else if payment is in rejected state
       else if (payment && (payment.state === 'REJECTED')) {
         Log.log(['debug', 'braintree'],
             'braintree dropin payment state REJECTED', payment.message)
-        $('#buyCreditsModal').modal('close')
         Toast.show(['braintree'], payment.message)
+        closeModal()
       }
 
       // else if payment is in approved state
-      else if (payment && (payment.state === 'SETTLED')) {
+      else if (payment && (payment.state === 'APPROVED')) {
         Log.log(['debug', 'braintree'],
-            'braintree dropin payment state SETTLED')
+            'braintree dropin payment state APPROVED')
 
         // inform user of success
-        Toast.show(['braintree'],'payment approved')
+        Toast.show(['braintree'], instance.translate('toast-payment-approved'))
 
         // close modal
-        $('#buyCreditsModal').modal('close')
+        closeModal()
       }
 
       // else if braintree client token exists
@@ -154,6 +170,7 @@ Template.braintreeDropinModal.onRendered(() => {
               const msg = 'error creating braintree dropin'
               Log.log(['warning', 'braintree'], msg, error)
               Toast.show(['braintree'], msg)
+              closeModal()
             }
 
             // else - no error
@@ -212,7 +229,18 @@ Template.braintreeDropinModal.helpers({
 
   translate(key) {
     const instance = Template.instance()
-    instance.translate(key)
+    return instance.translate(key)
+  },
+
+  title() {
+    const instance = Template.instance()
+    return instance.data.title?instance.data.title:
+        instance.translate('modal-title')
+  },
+
+  intro() {
+    const instance = Template.instance()
+    return instance.data.intro?instance.data.intro:undefined
   },
 
   // pay button attributes
@@ -224,8 +252,7 @@ Template.braintreeDropinModal.helpers({
         instance.isProcessing.get()
     const baseClass = 'btn waves-effect waves-green js-submitPaymentButton'
     return {
-      'class': disabled?baseClass+' disabled':baseClass,
-      // 'type': 'submit'
+      'class': disabled?baseClass+' disabled':baseClass
     }
   }
 })
@@ -250,6 +277,7 @@ Template.braintreeDropinModal.events({
             Log.log(['warning', 'braintree'], error, payload)
             Toast.show(['payment'],
                 instance.translate('toast-payment-error-payment-method'))
+            closeModal()
           }
 
           // else - no error
@@ -273,14 +301,14 @@ Template.braintreeDropinModal.events({
     const instance = Template.instance()
     event.preventDefault()
 
-    // close the modal
-    $('#buyCreditsModal').modal('close')
-
     // cancel the payment
     Meteor.call('payments.cancel', instance.paymentId.get())
 
     // show toast
     Toast.show(['braintree'], instance.translate('toast-payment-cancelled'))
+
+    // close the modal
+    closeModal()
   }
 })
 

@@ -22,7 +22,10 @@ Template.buyButton.helpers({
     return {
       amount: instance.data.amount,
       currency: instance.data.currency,
-      meta: instance.data.meta
+      meta: instance.data.meta,
+      title: instance.data.title,
+      intro: instance.data.intro,
+      translations: instance.data.translations
     }
   }
 })

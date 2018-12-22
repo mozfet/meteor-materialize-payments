@@ -1,6 +1,6 @@
 Package.describe({
   name: 'mozfet:materialize-payments',
-  version: '0.0.8',
+  version: '0.0.9',
   summary: 'MaterializeCSS Styled Payments for Braintree',
   git: 'https://github.com/mozfet/meteor-materialize-payments.git',
   documentation: 'README.md'
@@ -40,7 +40,7 @@ Package.onUse(function(api) {
     'session',
     'ejson',
     'templating@1.3.2',
-    'ui@1.0.13',    
+    'ui@1.0.13',
     'mozfet:materialize-toast@0.0.4'
   ], 'client')
   api.addFiles([

@@ -9,12 +9,15 @@ Template.DynaViewMaterialModal.onRendered(() => {
   // init modal
   const instance = Template.instance()
   const selector = '#'+instance.data.id
-  Log.log(['debug', 'dyna'], 'DynaViewMaterialModal selector:', selector)
-  $(selector).modal({
+  const element = $(selector)
+  M.Modal.init(element, {
     dismissible: true,
-    complete() {
+    onCloseEnd() {
+      Log.log(['debug', 'dyna'], `Modal closed`)
       Session.set('DynaView', undefined)
     }
   })
-  $(selector).modal('open')
+  const modal = M.Modal.getInstance(element)
+  console.log('MODAL', modal)
+  modal.open()
 })

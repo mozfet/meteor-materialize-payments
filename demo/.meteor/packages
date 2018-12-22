@@ -24,9 +24,8 @@ meteortesting:mocha               # A package for writing and running your meteo
 johanbrook:publication-collector  # Test a Meteor publication by collecting its output
 
 fourseven:scss
-zodiase:material-design-icons-fonts
+accounts-password
+accounts-ui
 
 mozfet:materialize-payments
 mozfet:meteor-logs
-accounts-password
-accounts-ui
