@@ -2,21 +2,23 @@
 import { Mongo } from 'meteor/mongo'
 import { Template } from 'meteor/templating'
 import { ReactiveVar } from 'meteor/reactive-var'
+import { _ } from 'meteor/underscore'
 import { Payment } from '../payment'
 import { Braintree } from '../braintree'
 import BraintreeDropin from 'braintree-web-drop-in'
 import { Toast } from 'meteor/mozfet:materialize-toast'
+import { Log } from 'meteor/mozfet:meteor-logs'
 import '../dynaViewMaterialModal/dynaViewMaterialModal'
 import './braintreeDropinModal.html'
 
-// close modal
+// close modal worker function
 function closeModal() {
   const element = $('#paymentModal')
   const modal = M.Modal.getInstance(element)
   modal.close()
 }
 
-// define templates
+// on created
 Template.braintreeDropinModal.onCreated(() => {
   const instance = Template.instance()
   console.log('braintreeDropinModal instance data', instance.data)
@@ -33,23 +35,50 @@ Template.braintreeDropinModal.onCreated(() => {
   instance.token = new ReactiveVar()
   instance.isProcessing = new ReactiveVar(false)
 
-  // internationalisation support
-  instance.translate = (key) => {
-    const translations = instance.data.translations?instance.data.translations:
-        {
-          'toast-payment-cancelled': 'Payment Cancelled',
-          'toast-payment-success': 'Payment Ok',
-          'toast-payment-error-create': 'Payment Creation Error',
-          'toast-payment-error-method': 'Payment Method Error',
-          'payment-modal-submit-button': 'Submit',
-          'payment-modal-cancel-button': 'Cancel',
-          'toast-payment-processing': 'Payment Processing',
-          'toast-payment-approved': 'Payment Approved',
-          'toast-payment-cancelled': 'Payment Cancelled',
-          'modal-title': 'Online Payment'
-        }
-    if (_.chain(translations).keys().contains(key)) {
-      return translations[key]
+  // normalise input texts
+  const inputTexts = instance.data.texts?instance.data.texts:{}
+  Log.log(['debug', 'braintree'], `input texts`, inputTexts)
+
+  // merge input texts with default texts
+  instance.texts = _.defaults(inputTexts, {
+    'product-name': 'Premium Account',
+    'buy-button-text': 'Buy',
+    'modal-title': 'Online Payment',
+    'modal-submit-button': 'Submit',
+    'modal-cancel-button': 'Cancel',
+    'toast-payment-cancelled': 'Payment Cancelled',
+    'toast-payment-success': 'Payment Ok',
+    'toast-payment-error-create': 'Payment Creation Error',
+    'toast-payment-error-method': 'Payment Method Error',
+    'toast-payment-processing': 'Payment Processing',
+    'toast-payment-approved': 'Payment Approved',
+    'toast-payment-cancelled': 'Payment Cancelled',
+  })
+  Log.log(['debug', 'payment', 'braintree'], `texts`, _.clone(instance.texts))
+
+  // if modal intro is not specified as input
+  const textIntro = instance.data.texts['modal-intro']
+  if (!textIntro) {
+    Log.log(['debug', 'payment', 'braintree'],
+        `Modal intro is not specified, generate it.`)
+
+    // intro text from transaction data
+    const textProductName = instance.texts['product-name']
+    if (textProductName) {
+      instance.texts['modal-intro'] = `Payment of ${instance.data.currency}`+
+          ` ${instance.data.amount} for ${textProductName}.`
+    }
+    else {
+      instance.texts['modal-intro'] = `Payment of ${instance.data.currency}`+
+          ` ${instance.data.amount}.`
+    }
+  }
+  Log.log(['debug', 'payment', 'braintree'], `texts`, _.clone(instance.texts))
+
+  // worker function to retrieve texts
+  instance.text = (key) => {
+    if (_.chain(instance.texts).keys().contains(key)) {
+      return instance.texts[key]
     }
     else {
       return key
@@ -61,12 +90,13 @@ Template.braintreeDropinModal.onCreated(() => {
     type: 'BRAINTREE',
     amount: instance.data.amount,
     currency: instance.data.currency,
+    productCode: instance.data.productCode,
     meta: instance.data.meta
   }
   const callback = (error, paymentId) => {
     if (error) {
       Log.log(['warning', 'payment', 'braintree', 'dropin'], error)
-      Toast.show(['payment'], instance.translate('toast-payment-error-create'))
+      Toast.show(['payment'], instance.text('toast-payment-error-create'))
       closeModal()
     }
     else {
@@ -78,6 +108,7 @@ Template.braintreeDropinModal.onCreated(() => {
   Payment.create(args, callback)
 })
 
+// on rendered
 Template.braintreeDropinModal.onRendered(() => {
   const instance = Template.instance()
 
@@ -116,7 +147,7 @@ Template.braintreeDropinModal.onRendered(() => {
             'braintree dropin payment state PROCESSING')
         instance.isProcessing.set(true)
         Toast.show(['braintree'],
-            instance.translate('toast-payment-processing'))
+            instance.text('toast-payment-processing'))
       }
 
       // else if payment is in error state
@@ -141,7 +172,7 @@ Template.braintreeDropinModal.onRendered(() => {
             'braintree dropin payment state APPROVED')
 
         // inform user of success
-        Toast.show(['braintree'], instance.translate('toast-payment-approved'))
+        Toast.show(['braintree'], instance.text('toast-payment-approved'))
 
         // close modal
         closeModal()
@@ -227,20 +258,10 @@ Template.braintreeDropinModal.helpers({
     return false
   },
 
-  translate(key) {
+  // text strings for customized modal
+  text(key) {
     const instance = Template.instance()
-    return instance.translate(key)
-  },
-
-  title() {
-    const instance = Template.instance()
-    return instance.data.title?instance.data.title:
-        instance.translate('modal-title')
-  },
-
-  intro() {
-    const instance = Template.instance()
-    return instance.data.intro?instance.data.intro:undefined
+    return instance.text(key)
   },
 
   // pay button attributes
@@ -257,7 +278,7 @@ Template.braintreeDropinModal.helpers({
   }
 })
 
-// event handlers
+// events
 Template.braintreeDropinModal.events({
 
   // on click pay button
@@ -276,7 +297,7 @@ Template.braintreeDropinModal.events({
           if (error) {
             Log.log(['warning', 'braintree'], error, payload)
             Toast.show(['payment'],
-                instance.translate('toast-payment-error-payment-method'))
+                instance.text('toast-payment-error-payment-method'))
             closeModal()
           }
 
@@ -305,14 +326,14 @@ Template.braintreeDropinModal.events({
     Meteor.call('payments.cancel', instance.paymentId.get())
 
     // show toast
-    Toast.show(['braintree'], instance.translate('toast-payment-cancelled'))
+    Toast.show(['braintree'], instance.text('toast-payment-cancelled'))
 
     // close the modal
     closeModal()
   }
 })
 
-// cleanup
+// on destroyed
 Template.braintreeDropinModal.onDestroyed(() => {
   const instance = Template.instance()
   if (instance.dropin) {

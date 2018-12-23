@@ -1,13 +1,10 @@
 // imports
 import { check } from 'meteor/check'
 import { Braintree } from './braintree'
+import './buyButton/buyButton.js'
 
-// on startup
-Meteor.startup(() => {
-
-  // define database collection for payments
-  const Payments = new Meteor.Collection('payments')
-})
+// define database collection for payments
+new Meteor.Collection('payments')
 
 /**
  * Polymorphic function to create a payment.

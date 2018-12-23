@@ -1,44 +1,31 @@
 // imports
 import { Meteor } from 'meteor/meteor'
 import { Template } from 'meteor/templating'
+import { Log } from 'meteor/mozfet:meteor-logs'
+import '../spinner/spinner.js'
+import '../dynaView/dynaView.js'
+import '../dynaView/dynaViewLauncher.js'
 import '../braintreeDropinModal/braintreeDropinModal'
 import './buyButton.html'
-
-// on created
-Template.buyButton.onCreated(() => {
-  const instance = Template.instance()
-  console.log('buyButton instance data', instance.data)
-})
-
-// on rendered
-Template.buyButton.onRendered(() => {
-  const instance = Template.instance()
-})
 
 // helpers
 Template.buyButton.helpers({
   transaction() {
     const instance = Template.instance()
-    return {
-      amount: instance.data.amount,
-      currency: instance.data.currency,
-      meta: instance.data.meta,
-      title: instance.data.title,
-      intro: instance.data.intro,
-      translations: instance.data.translations
-    }
+    Log.log(['debug', 'payment', 'buyButton'],
+        'Payment button instance data:', instance.data)
+    return instance.data
+  },
+  buttonText() {
+    const instance = Template.instance()
+    const texts = instance.data.texts?instance.data.texts:{'buy-button':'Buy'}
+    Log.log(['debug', 'payment', 'buyButton'],
+        'Texts:', texts)
+    return texts['buy-button']
+  },
+  buttonClass() {
+    const instance = Template.instance()
+    return instance.data.buyButtonClass?instance.data.buyButtonClass:
+        'btn'
   }
-})
-
-// events
-Template.buyButton.events({
-
-  //on click class
-  'click .className'(event, instance) {
-  }
-})
-
-// on destroyed
-Template.buyButton.onDestroyed(() => {
-  const instance = Template.instance()
 })

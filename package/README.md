@@ -19,34 +19,104 @@ Create settings-developement.json with your Braintree sandbox credentials and se
 }
 ```
 
-## Usage - client side
+## Installation - client side
 
-Click and buy button template js:
-```js
-import Payment from 'meteor/mozfet:materialize-payments'
+This package makes use of lazy loading and supports dynamic imports, thus before
+using the ```buyButton``` template, it must be imported.
 
-Template.myPaymentButton.events({
-  'click .btn'(event, instance) {
-    Payment.create({
-      type: 'BRAINTREE',
-      amount: 5,
-      currency: 'EUR',
-      meta: {
-        productId: '1234'
-      }
-    })
-  }
+Static import
+```javascript
+import 'meteor/mozfet:materialize-payments'
+```
+
+Dynamic import
+```javascript
+FlowRouter.route('/', {
+  name: 'App.home',
+  action: async function(params, queryParams) {
+    await import('/imports/ui/pages/home/home')
+    BlazeLayout.render('App_body', { main: 'App_home' })
+  },
 })
 ```
 
-Click and buy button template html:
+## Usage - client side
+
+Create DynaView inside top level container html; this is used to anchor dialogs to.
+Create buyButtons anywhere in template code.
 ```html
-<template name="myPaymentButton" >
-  <button class="btn">Pay $5</button>
+<template name="App_home">
+  <div class="container">
+    <div class="row">
+      <div class="col s12">
+        <h1>Materialize Payment Demo</h1>
+        {{> loginButtons}}
+      </div>
+    </div>
+    <div class="row">
+      <div class="col s12">
+        {{> buyButton amount=3 currency='EUR'}}
+        {{> buyButton transactionBasic}}
+        {{> buyButton transactionIntermediate}}
+        {{> buyButton transactionAdvanced}}
+      </div>
+    </div>
+    {{> DynaView}}
+  </div>
 </template>
 ```
 
-Show the payment button in any client template html
-```html
-{{> myPaymentButton}}
+Define template helpers with transaction data to customise modal text and payment data.
+
+```js
+import { Template } from 'meteor/templating'
+import 'meteor/mozfet:materialize-payments'
+import './home.html'
+
+Template.App_home.helpers({
+  transactionBasic() {
+    const instance = Template.instance()
+    return {
+      amount: 14,
+      currency: 'EUR'
+    }
+  },
+  transactionIntermediate() {
+    const instance = Template.instance()
+    return {
+      amount: 7,
+      currency: 'EUR',
+      productCode: 'SUBSCRIPTION',
+      texts: {
+        'product-name': 'Professional Account',
+        'buy-button': 'Buy 1 year Subscription'
+      }
+    }
+  },
+  transactionAdvanced() {
+    const instance = Template.instance()
+    return {
+      amount: 5,
+      currency: 'EUR',
+      productCode: 'PREMIUM_ACCOUNT',
+      buyButtonClass: 'btn-large orange waves-dark black-text',
+      title: 'Pay for your stuff!',
+      texts: {
+        'product-name': 'Premium Account',
+        'buy-button': 'Buy Premium Account',
+        'modal-title': 'Time to pay the bill',
+        'modal-intro': 'You are buying a one year premium account subscription.',
+        'modal-submit-button': 'Pay the man',
+        'modal-cancel-button': 'Run away',
+        'toast-payment-cancelled': 'Cancelleroo',
+        'toast-payment-success': 'Okidoki',
+        'toast-payment-error-create': 'Crap',
+        'toast-payment-error-method': 'Other Crap',
+        'toast-payment-processing': 'Please wait',
+        'toast-payment-approved': 'You won!',
+        'toast-payment-cancelled': 'Chicken!',
+      }
+    }
+  }
+})
 ```
