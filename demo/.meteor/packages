@@ -27,5 +27,6 @@ fourseven:scss
 accounts-password
 accounts-ui
 
-mozfet:materialize-payments
 mozfet:meteor-logs
+mozfet:dynaview
+mozfet:materialize-payments
