@@ -2,9 +2,8 @@
 import { Meteor } from 'meteor/meteor'
 import { Template } from 'meteor/templating'
 import { Log } from 'meteor/mozfet:meteor-logs'
-import '../spinner/spinner.js'
-import '../dynaView/dynaView.js'
-import '../dynaView/dynaViewLauncher.js'
+import '../spinner/spinner'
+import 'meteor/mozfet:dynaview'
 import '../braintreeDropinModal/braintreeDropinModal'
 import './buyButton.html'
 

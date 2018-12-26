@@ -8,7 +8,7 @@ import { Braintree } from '../braintree'
 import BraintreeDropin from 'braintree-web-drop-in'
 import { Toast } from 'meteor/mozfet:materialize-toast'
 import { Log } from 'meteor/mozfet:meteor-logs'
-import '../dynaViewMaterialModal/dynaViewMaterialModal'
+import 'meteor/mozfet:dynaview'
 import './braintreeDropinModal.html'
 
 // close modal worker function
@@ -57,7 +57,8 @@ Template.braintreeDropinModal.onCreated(() => {
   Log.log(['debug', 'payment', 'braintree'], `texts`, _.clone(instance.texts))
 
   // if modal intro is not specified as input
-  const textIntro = instance.data.texts['modal-intro']
+  const textIntro = instance.data.texts?instance.data.texts['modal-intro']
+      :undefined
   if (!textIntro) {
     Log.log(['debug', 'payment', 'braintree'],
         `Modal intro is not specified, generate it.`)
