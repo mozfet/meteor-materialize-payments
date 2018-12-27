@@ -73,7 +73,7 @@ mongo-dev-server@1.1.0
 mongo-id@1.0.7
 mozfet:access@0.0.6
 mozfet:dynaview@0.0.4
-mozfet:materialize-payments@1.0.1
+mozfet:materialize-payments@1.0.2
 mozfet:materialize-toast@0.0.4
 mozfet:meteor-logs@0.3.3
 npm-bcrypt@0.9.3

@@ -1,4 +1,5 @@
 // imports
+import EventEmitter from 'events'
 import { check } from 'meteor/check'
 import { Meteor } from 'meteor/meteor'
 import { Mongo } from 'meteor/mongo'
@@ -25,9 +26,6 @@ payments.before.insert(function (userId, doc) {
 
   // set creation and update time
   doc.createdAt = doc.updatedAt = new Date()
-
-  // set credit validity days
-  // doc.creditValidityDays = 365
 })
 
 // before payment update
@@ -146,7 +144,36 @@ const reset = () => {
   }
 }
 
-// export api
+/**
+ * Events
+ **/
+export const emitter = new EventEmitter()
+export const events = {
+  PAYMENT_APPROVED: 'PAYMENT_APPROVED'
+}
+
+// after update payment
+payments.after.update((userId, doc, fieldNames, modifier, options) => {
+  Log.log(['debug', 'payments', 'hooks'], `After payment update modifier`,
+      modifier)
+
+  // if state changed to approved
+  if (modifier['$set'].state === 'APPROVED') {
+    Log.log(['debug', 'payments', 'hooks'], `State changed to approved.`)
+
+    // emit
+    emitter.emit(events.PAYMENT_APPROVED, doc)
+  }
+})
+
+emitter.on(events.PAYMENT_APPROVED, payment => {
+  Log.log(['debug', 'payments'], `On Payment Approved:`, payment)
+})
+
+/**
+ * Export Payment API
+ **/
+
 export const Payment = {
   create,
   cancel,

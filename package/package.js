@@ -1,6 +1,6 @@
 Package.describe({
   name: 'mozfet:materialize-payments',
-  version: '1.0.1',
+  version: '1.0.2',
   summary: 'MaterializeCSS Styled Payments for Braintree',
   git: 'https://github.com/mozfet/meteor-materialize-payments.git',
   documentation: 'README.md'
@@ -10,6 +10,7 @@ Npm.depends({
   'braintree': '2.13.1',
   'braintree-web': '3.39.0',
   'braintree-web-drop-in': '1.14.1',
+  'events': '1.1.1'
 });
 
 Package.onUse(function(api) {

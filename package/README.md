@@ -120,3 +120,5 @@ Template.App_home.helpers({
   }
 })
 ```
+
+## Usage - server side
