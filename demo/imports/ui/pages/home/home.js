@@ -2,6 +2,8 @@ import { Template } from 'meteor/templating'
 import 'meteor/mozfet:materialize-payments'
 import './home.html'
 
+const subscriptions = Mongo.Collection.get('subscriptions')
+
 Template.App_home.helpers({
   transactionBasic() {
     const instance = Template.instance()
@@ -15,10 +17,18 @@ Template.App_home.helpers({
     return {
       amount: 7,
       currency: 'EUR',
-      productCode: 'SUBSCRIPTION',
+      productCode: 'PROFESSIONAL_ACCOUNT',
+      meta: {
+        subscription: {
+          duration: {
+            years: 1,
+            months: 6
+          }
+        }
+      },
       texts: {
-        'product-name': 'Professional Account',
-        'buy-button': 'Buy 1 year Subscription'
+        'product-name': '18 Month Professional Account',
+        'buy-button': 'Buy a 1 year Subscription, get 6 months Free!'
       }
     }
   },

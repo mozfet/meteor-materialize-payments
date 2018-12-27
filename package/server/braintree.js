@@ -26,6 +26,7 @@ Meteor.startup(() => {
 // args.id - payment id in database
 // args.customerId - braintree customer id in vault of merchant
 const generateClientToken = (args, callback) => {
+  Log.log(['debug', 'payment', 'braintree'], `generatingClientToken`, args)
 
   // define client token args
   const clientTokenArgs = {}
@@ -37,15 +38,15 @@ const generateClientToken = (args, callback) => {
         'Must be logged in to generate client token.')
   }
   const user = Meteor.users.findOne()
-  Log.log(['debug', 'braintree'],
-      'braintree.server.api.generateClientToken.user', user)
+  // Log.log(['debug', 'braintree'],
+  //     'braintree.server.api.generateClientToken.user', user)
 
   // set braintree customer id of repeat customer
   if(user.payments && user.payments.braintree &&
         user.payments.braintree.customerId) {
     clientTokenArgs.customerId = user.payments.braintree.customerId
   }
-  Log.log(['debug', 'braintree'], 'braintree.server.api.generateClientToken.clientTokenArg', clientTokenArgs)
+  // Log.log(['debug', 'braintree'], 'braintree.server.api.generateClientToken.clientTokenArg', clientTokenArgs)
 
   // get payments collection
   const payments = Mongo.Collection.get('payments')
@@ -68,7 +69,7 @@ const generateClientToken = (args, callback) => {
 
         // if response is success
         if (response.success) {
-          Log.log(['information', 'braintree'], 'generated braintree client token', [response.clientToken])
+          Log.log(['information', 'braintree'], 'generated braintree client token')
 
           // update payment with client token
           payments.update(args.id, {$set: {
@@ -147,14 +148,12 @@ const braintreePayment = (args, callback) => {
         // else if result is success
         else if (result.success) {
           Log.log(['information', 'debug', 'braintree'],
-              'braintree.payment.callback.result.transaction.customer',
-              result.transaction.customer)
+              `Sale ${result.transaction.id} is a success.`)
 
           // mark transaction as approved and store transaction id
           payments.update(payment._id, {$set: {state: 'APPROVED',
               'braintree.transactionId': result.transaction.id}})
-          Log.log(['debug', 'braintree'], 'payment approved',
-              payments.findOne(payment._id))
+          Log.log(['debug', 'braintree'], `payment approved ${payment._id}`)
 
           // store customer id for user
           Meteor.users.update({_id: Meteor.userId()},

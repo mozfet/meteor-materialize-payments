@@ -100,8 +100,7 @@ const create = (args) => {
   if (paymentId) {
 
     // log payment detail
-    const payment = payments.findOne(paymentId)
-    Log.log(['information', 'payments'], 'Created payment:', payment)
+    Log.log(['information', 'payments'], `Created payment ${paymentId}`)
 
     // return payment id
     return paymentId
@@ -112,6 +111,7 @@ const create = (args) => {
 
     // log and throw error
     Log.log(['error', 'payments'], 'Unable to create new payment.')
+    return undefined
   }
 }
 
@@ -154,8 +154,6 @@ export const events = {
 
 // after update payment
 payments.after.update((userId, doc, fieldNames, modifier, options) => {
-  Log.log(['debug', 'payments', 'hooks'], `After payment update modifier`,
-      modifier)
 
   // if state changed to approved
   if (modifier['$set'].state === 'APPROVED') {
@@ -167,7 +165,7 @@ payments.after.update((userId, doc, fieldNames, modifier, options) => {
 })
 
 emitter.on(events.PAYMENT_APPROVED, payment => {
-  Log.log(['debug', 'payments'], `On Payment Approved:`, payment)
+  Log.log(['debug', 'payments', 'events'], `On Payment Approved:`, payment._id)
 })
 
 /**

@@ -1,6 +1,6 @@
 Package.describe({
   name: 'mozfet:materialize-payments',
-  version: '1.0.2',
+  version: '1.0.3',
   summary: 'MaterializeCSS Styled Payments for Braintree',
   git: 'https://github.com/mozfet/meteor-materialize-payments.git',
   documentation: 'README.md'
