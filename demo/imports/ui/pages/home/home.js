@@ -1,8 +1,7 @@
 import { Template } from 'meteor/templating'
 import 'meteor/mozfet:materialize-payments'
+import 'meteor/mozfet:subscriptions'
 import './home.html'
-
-const subscriptions = Mongo.Collection.get('subscriptions')
 
 Template.App_home.helpers({
   transactionBasic() {
@@ -12,7 +11,7 @@ Template.App_home.helpers({
       currency: 'EUR'
     }
   },
-  transactionIntermediate() {
+  transactionSubscription() {
     const instance = Template.instance()
     return {
       amount: 7,
@@ -32,7 +31,7 @@ Template.App_home.helpers({
       }
     }
   },
-  transactionAdvanced() {
+  transactionCustomized() {
     const instance = Template.instance()
     return {
       amount: 5,

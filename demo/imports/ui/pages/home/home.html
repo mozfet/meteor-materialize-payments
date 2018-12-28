@@ -8,11 +8,19 @@
     </div>
     <div class="row">
       <div class="col s12">
-        {{> buyButton transactionBasic}}
-        {{> buyButton transactionIntermediate}}
-        {{> buyButton transactionAdvanced}}
+        {{>buyButton transactionBasic}}
+        {{>buyButton transactionCustomized}}
       </div>
     </div>
+
+    <div class="row">
+      {{#showIfSubscribed productCode="PROFESSIONAL_ACCOUNT"}}
+        <p>You already have a professional account.</p>
+      {{else}}
+        {{>buyButton transactionSubscription}}
+      {{/showIfSubscribed}}
+    </div>    
+
     {{> DynaView}}
   </div>
 </template>

@@ -59,30 +59,6 @@ Meteor.publish('payments', function () {
   }
 })
 
-// publications
-Meteor.publish('payments.session', function (sessionId) {
-  check(sessionId, String)
-  const userId = Meteor.userId()
-
-  // if user is admin
-  if(Access.isAdmin()) {
-
-    return payments.find({
-      'meta.sessionId': sessionId
-    })
-  }
-
-  // all other users
-  else {
-
-    // publish all payments user sent or recieved
-    return payments.find({
-      'meta.sessionId': sessionId,
-      $or: [{senderId: userId}, {recieverId: userId}]
-    })
-  }
-})
-
 /**
  * Create a payment record in the database.
  * @param {Object} args - arguments compliant to payment schema

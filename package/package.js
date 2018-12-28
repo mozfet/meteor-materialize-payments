@@ -1,6 +1,6 @@
 Package.describe({
   name: 'mozfet:materialize-payments',
-  version: '1.0.3',
+  version: '1.0.4',
   summary: 'MaterializeCSS Styled Payments for Braintree',
   git: 'https://github.com/mozfet/meteor-materialize-payments.git',
   documentation: 'README.md'
@@ -43,7 +43,7 @@ Package.onUse(function(api) {
     'templating@1.3.2',
     'ui@1.0.13',
     'mozfet:meteor-logs',
-    'mozfet:dynaview@0.0.4',
+    'mozfet:dynaview@0.0.5',
     'mozfet:materialize-toast@0.0.4'
   ], 'client')
   api.mainModule('./client/payment.js', 'client', { lazy: true });

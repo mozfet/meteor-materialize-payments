@@ -21,7 +21,8 @@ function closeModal() {
 // on created
 Template.braintreeDropinModal.onCreated(() => {
   const instance = Template.instance()
-  console.log('braintreeDropinModal instance data', instance.data)
+  Log.log(['debug', 'braintree'], 'braintreeDropinModal instance data:',
+      instance.data)
 
   // subscribe to payments publication
   instance.subscribe('payments')
@@ -41,7 +42,7 @@ Template.braintreeDropinModal.onCreated(() => {
 
   // merge input texts with default texts
   instance.texts = _.defaults(inputTexts, {
-    'product-name': 'Premium Account',
+    'product-name': undefined,
     'buy-button-text': 'Buy',
     'modal-title': 'Online Payment',
     'modal-submit-button': 'Submit',
@@ -54,13 +55,13 @@ Template.braintreeDropinModal.onCreated(() => {
     'toast-payment-approved': 'Payment Approved',
     'toast-payment-cancelled': 'Payment Cancelled',
   })
-  Log.log(['debug', 'payment', 'braintree'], `texts`, _.clone(instance.texts))
+  Log.log(['debug', 'payments', 'braintree'], `texts`, _.clone(instance.texts))
 
   // if modal intro is not specified as input
   const textIntro = instance.data.texts?instance.data.texts['modal-intro']
       :undefined
   if (!textIntro) {
-    Log.log(['debug', 'payment', 'braintree'],
+    Log.log(['debug', 'payments', 'braintree'],
         `Modal intro is not specified, generate it.`)
 
     // intro text from transaction data
@@ -74,7 +75,7 @@ Template.braintreeDropinModal.onCreated(() => {
           ` ${instance.data.amount}.`
     }
   }
-  Log.log(['debug', 'payment', 'braintree'], `texts`, _.clone(instance.texts))
+  Log.log(['debug', 'payments', 'braintree'], `texts`, _.clone(instance.texts))
 
   // worker function to retrieve texts
   instance.text = (key) => {
@@ -96,12 +97,12 @@ Template.braintreeDropinModal.onCreated(() => {
   }
   const callback = (error, paymentId) => {
     if (error) {
-      Log.log(['warning', 'payment', 'braintree', 'dropin'], error)
+      Log.log(['warning', 'payments', 'braintree', 'dropin'], error)
       Toast.show(['payment'], instance.text('toast-payment-error-create'))
       closeModal()
     }
     else {
-      Log.log(['debug', 'payment', 'braintree'], 'braintree dropin payment id',
+      Log.log(['debug', 'payments', 'braintree'], 'braintree dropin payment id',
           paymentId)
       instance.paymentId.set(paymentId)
     }
@@ -126,12 +127,12 @@ Template.braintreeDropinModal.onRendered(() => {
       const payments = Mongo.Collection.get('payments')
       const paymentCursor = payments.find({_id: paymentId})
       const payment = _.first(paymentCursor.fetch())
-      Log.log(['debug', 'braintree'], 'braintree dropin payment', payment)
+      Log.log(['debug', 'payments', 'braintree'], 'braintree dropin payment', payment)
       instance.payment.set(payment)
 
       // if payment is in created state
       if (payment && payment.state==='CREATED') {
-        Log.log(['debug', 'braintree'],
+        Log.log(['debug', 'payments', 'braintree'],
             'braintree dropin payment state CREATED', [])
 
         // get the client token from the server
@@ -144,7 +145,7 @@ Template.braintreeDropinModal.onRendered(() => {
 
       // else if payment is in processing state
       else if (payment && (payment.state === 'PROCESSING')) {
-        Log.log(['debug', 'braintree'],
+        Log.log(['debug', 'payments', 'braintree'],
             'braintree dropin payment state PROCESSING')
         instance.isProcessing.set(true)
         Toast.show(['braintree'],
@@ -153,7 +154,7 @@ Template.braintreeDropinModal.onRendered(() => {
 
       // else if payment is in error state
       else if (payment && (payment.state === 'ERROR')) {
-        Log.log(['debug', 'braintree'], 'braintree dropin payment state ERROR',
+        Log.log(['debug', 'payments', 'braintree'], 'braintree dropin payment state ERROR',
             payment.errorMessage)
         Toast.show(['braintree'], payment.errorMessage)
         closeModal()

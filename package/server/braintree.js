@@ -26,7 +26,7 @@ Meteor.startup(() => {
 // args.id - payment id in database
 // args.customerId - braintree customer id in vault of merchant
 const generateClientToken = (args, callback) => {
-  Log.log(['debug', 'payment', 'braintree'], `generatingClientToken`, args)
+  Log.log(['debug', 'payments', 'braintree'], `generatingClientToken`, args)
 
   // define client token args
   const clientTokenArgs = {}
@@ -34,7 +34,7 @@ const generateClientToken = (args, callback) => {
   // get user
   const userId = Meteor.userId()
   if (!userId) {
-    Log.log(['error', 'payment', 'braintree'],
+    Log.log(['error', 'payments', 'braintree'],
         'Must be logged in to generate client token.')
   }
   const user = Meteor.users.findOne()
@@ -61,7 +61,7 @@ const generateClientToken = (args, callback) => {
 
         // update payment with error
         payments.update(args.id, {$set: {state: 'ERROR', errorType: 'CONNECTION', errorMessage: 'connection error'}})
-        Log.log(['warning', 'braintree'], 'could not generate braintree client token', [error])
+        Log.log(['warning', 'payments', 'braintree'], 'could not generate braintree client token', [error])
       }
 
       // else - success
@@ -69,7 +69,7 @@ const generateClientToken = (args, callback) => {
 
         // if response is success
         if (response.success) {
-          Log.log(['information', 'braintree'], 'generated braintree client token')
+          Log.log(['information', 'payments', 'braintree'], 'generated braintree client token')
 
           // update payment with client token
           payments.update(args.id, {$set: {
@@ -81,7 +81,7 @@ const generateClientToken = (args, callback) => {
 
           // update payment with error
           payments.update(args.id, {$set: {state: 'ERROR', errorType: 'PROCESSOR', errorMessage: response.message}})
-          Log.log(['warning', 'braintree'], [response.message])
+          Log.log(['warning', 'payments', 'braintree'], [response.message])
         }
       }
 
@@ -108,7 +108,7 @@ const braintreePayment = (args, callback) => {
   // get the payment
   const payment = payments.findOne(args.id)
   if(_.isUndefined(payment)) {
-    Log.log(['error', 'braintree'],'braintree needs a payment to process:', [payment])
+    Log.log(['error', 'payments', 'braintree'],'Braintree needs a payment to process:', [payment])
   }
 
   // mark payment as processiong and set the nonce
@@ -137,7 +137,7 @@ const braintreePayment = (args, callback) => {
           // mark transaction as error in db
           payments.update(payment._id, {$set: {state: 'ERROR',
               errorType: 'CONNECTION', errorMessage: 'connection error'}})
-          Log.log(['warning', 'braintree'], [error])
+          Log.log(['warning', 'payments', 'braintree'], [error])
 
           // callback
           if (callback) {
@@ -147,13 +147,13 @@ const braintreePayment = (args, callback) => {
 
         // else if result is success
         else if (result.success) {
-          Log.log(['information', 'debug', 'braintree'],
+          Log.log(['information', 'payments', 'braintree'],
               `Sale ${result.transaction.id} is a success.`)
 
           // mark transaction as approved and store transaction id
           payments.update(payment._id, {$set: {state: 'APPROVED',
               'braintree.transactionId': result.transaction.id}})
-          Log.log(['debug', 'braintree'], `payment approved ${payment._id}`)
+          Log.log(['debug', 'payments', 'braintree'], `Payment ${payment._id} approved.`)
 
           // store customer id for user
           Meteor.users.update({_id: Meteor.userId()},
@@ -172,7 +172,7 @@ const braintreePayment = (args, callback) => {
           // mark transaction as error in db
           payments.update(payment._id, {$set: {state: 'REJECTED',
               message: result.message}})
-          Log.log(['warning', 'braintree'], 'payment rejected by gateway',
+          Log.log(['warning', 'payments', 'braintree'], 'payment rejected by gateway',
               [result.message])
 
           //callback

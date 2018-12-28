@@ -11,14 +11,14 @@ import './buyButton.html'
 Template.buyButton.helpers({
   transaction() {
     const instance = Template.instance()
-    Log.log(['debug', 'payment', 'buyButton'],
+    Log.log(['debug', 'payments', 'buyButton'],
         'Payment button instance data:', instance.data)
     return instance.data
   },
   buttonText() {
     const instance = Template.instance()
     const texts = instance.data.texts?instance.data.texts:{'buy-button':'Buy'}
-    Log.log(['debug', 'payment', 'buyButton'],
+    Log.log(['debug', 'payments', 'buyButton'],
         'Texts:', texts)
     return texts['buy-button']
   },
