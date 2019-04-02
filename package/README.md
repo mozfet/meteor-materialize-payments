@@ -4,6 +4,13 @@
 
 This package was created and is maintained by [The Expert Box](https://www.ExpertBox.com) as a thank you to the open source community.
 
+## Installation
+
+In your Meteor project folder:
+```
+$ meteor add mozfet:materialize-payments
+```
+
 ## Installation - server side
 
 Create settings-developement.json with your Braintree sandbox credentials and settings-production.json with your production credentials. Remember that these credentials should be protected, and thus not uploaded to your repo.
