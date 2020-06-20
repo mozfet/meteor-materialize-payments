@@ -1,6 +1,6 @@
 Package.describe({
   name: 'mozfet:materialize-payments',
-  version: '1.0.4',
+  version: '1.0.5',
   summary: 'MaterializeCSS Styled Payments for Braintree',
   git: 'https://github.com/mozfet/meteor-materialize-payments.git',
   documentation: 'README.md'
@@ -20,15 +20,15 @@ Package.onUse(function(api) {
   api.use([
     'ecmascript',
     'underscore',
-    'mozfet:meteor-logs@0.3.3',
+    'mozfet:meteor-logs@1.0.1',
     'dburles:mongo-collection-instances@0.3.5'
   ]);
 
   // server
   api.use([
-    'fourseven:scss@4.10.0',
-    'mozfet:access@0.0.4',
-    'matb33:collection-hooks@0.8.4'
+    'fourseven:scss@4.12.0',
+    'mozfet:access@0.1.3',
+    'matb33:collection-hooks@1.0.1'
   ], 'server');
   api.addFiles([
     './server/braintree.js',
