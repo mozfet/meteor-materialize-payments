@@ -9,7 +9,7 @@
   "dependencies": {
     "meteor-node-stubs": "^0.4.1",
     "@babel/runtime": "^7.1.5",
-    "bcrypt": "^3.0.2",
+    "bcrypt": "^5.0.0",
     "core-js": "^2.5.7",
     "materialize-css": "^1.0.0"
   },
